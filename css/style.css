@@ -131,7 +131,7 @@
   transition: transform 0.3s ease;
 }
 .action-btn.liked img {
-  content: url('../icon/hearth1.png');
+  content: url('/Voice-Note/assets/icons/hearth1.png');
    width: 35px;
   height: 35px;
   transform: scale(1.15);
