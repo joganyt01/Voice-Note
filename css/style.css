@@ -131,7 +131,7 @@
   transition: transform 0.3s ease;
 }
 .action-btn.liked img {
-  content: url('/assets/icons/hearth1.png');
+  content: url('/Voice-Note/assets/icons/hearth1.png');
    width: 35px;
   height: 35px;
   transform: scale(1.15);
@@ -162,7 +162,7 @@
 .voice-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/assets/img/johan.jpg");
+  background-image: url("/Voice-Note/assets/img/johan.jpg");
   background-size: cover;
   background-position: center;
   filter: blur(6px) brightness(0.6);
@@ -173,7 +173,7 @@
   height: 48px;
   border-radius: 50%;
   background: linear-gradient(145deg, #a03cff, #6e3cff);
-  background-image: url('/assets/icons/videoPlay.png');
+  background-image: url('/Voice-Note/assets/icons/videoPlay.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 55%;
@@ -192,7 +192,7 @@
 
 /* Estado pausado */
 .voice-play.paused {
-  background-image: url('/assets/icons/videoPaused.png');
+  background-image: url('/Voice-Note/assets/icons/videoPaused.png');
   background-size: 50%;
   background-position: center;
   background-repeat: no-repeat;
@@ -619,7 +619,7 @@ font-family: 'Poppins', sans-serif;
 .phote{
  width: 282px;
  height: 500px;
-  background-image: url('/assets/img/foto.jpg');
+  background-image: url('/Voice-Note/assets/img/foto.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -675,11 +675,11 @@ font-family: 'Poppins', sans-serif;
 
 /* Íconos personalizados */
 .video-btn.play {
-  background-image: url('/assets/icons/videoPlay.png'); /* ícono degradado violeta-azul */
+  background-image: url('/Voice-Note/assets/icons/videoPlay.png'); /* ícono degradado violeta-azul */
 }
 
 .video-btn.pause {
-  background-image: url('/assets/icons/videoPaused.png'); /* ícono degradado violeta-azul */
+  background-image: url('/Voice-Note/assets/icons/videoPaused.png'); /* ícono degradado violeta-azul */
 }
 
 /* Aparece cuando pausas */
@@ -1008,7 +1008,6 @@ font-family: 'Poppins', sans-serif;
   padding: 2px;
   background: transparent;
   border-radius: 12px;
- 
   z-index: 1000;
    transition: transform 0.3s ease, opacity 0.3s ease;
 }
