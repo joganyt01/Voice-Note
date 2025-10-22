@@ -255,7 +255,7 @@ commentSections.forEach((section) => {
     if (text !== '') {
       const newComment = document.createElement('div');
       newComment.classList.add('user-info');
-      newComment.innerHTML = `<img src="/assets/img/Johan.jpg" alt="user" class="user-avatar" style="margin-right: 0px;">
+      newComment.innerHTML = `<img src="assets/img/Johan.jpg" alt="user" class="user-avatar" style="margin-right: 0px;">
      <div class="comment-text"><strong>Tu:</strong></div> ${text}`;
       commentList.appendChild(newComment);
 
@@ -280,10 +280,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logout");
 
   const users = [
-    { user: 'johan', contra: '12345', name: 'Johan', foto: '/assets/img/johan.jpg' },
-    { user: 'yisus', contra: '123', name: 'Yisus', foto: '/assets/img/yisus.jpg' },
-    { user: 'kevin', contra: '000', name: 'Kevin', foto: '/assets/img/kevin.jpg' },
-    { user: 'trofeo', contra: '321', name: 'Trofeo', foto: '/assets/img/trofeo.jpg' }
+    { user: 'johan', contra: '12345', name: 'Johan', foto: 'assets/img/johan.jpg' },
+    { user: 'yisus', contra: '123', name: 'Yisus', foto: 'assets/img/yisus.jpg' },
+    { user: 'kevin', contra: '000', name: 'Kevin', foto: 'assets/img/kevin.jpg' },
+    { user: 'trofeo', contra: '321', name: 'Trofeo', foto: 'assets/img/trofeo.jpg' }
   ];
 
   
@@ -458,7 +458,7 @@ function initLikes() {
 // --- UI helper ---
 function updateLikeUI(button, count, liked) {
   // Actualiza el innerHTML del botón con icono y número
-  button.innerHTML = `<img src="/assets/icons/${liked ? "hearth-fill.png" : "hearth.png"}" alt=""> ${count}`;
+  button.innerHTML = `<img src="assets/icons/${liked ? "hearth-fill.png" : "hearth.png"}" alt=""> ${count}`;
 
   // Clase visual
   if (liked) button.classList.add("liked");
@@ -493,7 +493,7 @@ if (window.innerWidth <= 768) {
     if (logoSection) {
       const clone = logoSection.cloneNode(true);
       clone.classList.add("floating-logo");
-      feed.appendChild(clone);
+      document.body.appendChild(clone);
     }
   }
 
@@ -549,7 +549,7 @@ function showPendingAudioPreview(url) {
   const wrapper = document.querySelector(".input-wrapper");
   if (!wrapper) return;
 
-  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { foto: '/assets/img/johan.jpg' };
+  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { foto: 'assets/img/johan.jpg' };
 
   const preview = document.createElement("div");
   preview.className = "pending-audio-preview";
@@ -653,11 +653,11 @@ sendButton.addEventListener('click', (e) => {
 
 // Funciones para insertar comentario en la lista (ajusta según tu estructura)
 function sendTextComment(text) {
-  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { user: 'Tú', avatar: '/assets/img/johan.jpg' };
+  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { user: 'Tú', avatar: 'assets/img/johan.jpg' };
   const node = document.createElement('div');
   node.className = 'user-info margen';
   node.innerHTML = `
-    <img src="${usuarioActivo.avatar || '/assets/img/johan.jpg'}" class="user-avatar">
+    <img src="${usuarioActivo.avatar || 'assets/img/johan.jpg'}" class="user-avatar">
     <div class="comment-text"><strong>${usuarioActivo.user}</strong> ${escapeHtml(text)}</div>
   `;
   commentList.appendChild(node);
@@ -668,7 +668,7 @@ function sendTextComment(text) {
 function sendAudioComment(blob) {
   const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || {
     user: 'Tú',
-    foto: '/assets/img/johan.jpg'
+    foto: 'assets/img/johan.jpg'
   };
 
   const url = URL.createObjectURL(blob);
