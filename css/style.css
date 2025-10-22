@@ -131,7 +131,7 @@
   transition: transform 0.3s ease;
 }
 .action-btn.liked img {
-  content: url('/assets/icons/hearth1.png');
+  content: url('assets/icons/hearth1.png');
    width: 35px;
   height: 35px;
   transform: scale(1.15);
@@ -162,7 +162,7 @@
 .voice-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/assets/img/johan.jpg");
+  background-image: url("assets/img/johan.jpg");
   background-size: cover;
   background-position: center;
   filter: blur(6px) brightness(0.6);
