@@ -490,10 +490,11 @@ function showFeedInstant() {
 }
 if (window.innerWidth <= 768) {
     const logoSection = document.querySelector(".sidebar .logo-section");
+    const BarTop=document.getElementById('bar-top')
     if (logoSection) {
       const clone = logoSection.cloneNode(true);
       clone.classList.add("floating-logo");
-      document.body.appendChild(clone);
+      BarTop.appendChild(clone);
     }
   }
 

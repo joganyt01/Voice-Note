@@ -510,7 +510,7 @@
 
 .right-section {
   display: flex;
-  justify-content: right;
+justify-content: center;
   gap: 18px;
   margin-right: 15%;
 }
@@ -962,6 +962,9 @@ font-family: 'Poppins', sans-serif;
   background: rgba(255, 0, 0, 0.6);
 }
 
+.floating-logo{
+  display: none;
+}
 
 /* === 📱 Modo responsive (móviles) === */
 @media (max-width: 768px) {
@@ -994,14 +997,14 @@ font-family: 'Poppins', sans-serif;
   .sugerencias{
     display: none;
   }
-  .top-bar{
-    margin-left: -9%;
-    margin-top: 2%;
+  .menu-general{
+    margin-top: 6%;
+     display: flex;
+justify-content: center;
+flex-direction: row-reverse;
+  gap: 18px;
   }
   .floating-logo {
-  position: fixed;
-  top: -5px;
-  left: 200px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1010,6 +1013,7 @@ font-family: 'Poppins', sans-serif;
   border-radius: 12px;
   z-index: 1000;
    transition: transform 0.3s ease, opacity 0.3s ease;
+
 }
 
 .floating-logo img {
@@ -1023,7 +1027,14 @@ font-family: 'Poppins', sans-serif;
   margin: 0;
 
 }
-
+.right-section{
+  display: flex;
+  justify-content: center;
+  
+}
+.top-bar{
+  margin-left: -9%;
+}
 .post{
   margin-top: 10%;
 }
