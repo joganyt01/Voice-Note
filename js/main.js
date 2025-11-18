@@ -145,7 +145,7 @@ let animationFrame;
 // ---- PLAY / PAUSE con click en el contenedor ----
 videoPlayer.addEventListener('click', (e) => {
   // Evita que el click en la barra interrumpa el video
-  if (e.target.closest('.video-progress-container')) return;
+  if (e.target.closest('.video-progress')) return;
 
   if (video.paused) {
     video.play();
@@ -274,160 +274,177 @@ commentSections.forEach((section) => {
 });
 document.addEventListener("DOMContentLoaded", () => {
   const splash = document.querySelector(".splash-screen");
-  const login = document.getElementById("login");
-  const feed = document.getElementById("feed");
-  const botonIniciar = document.getElementById("iniciar");
-  const logoutBtn = document.getElementById("logout");
+const loginContainer = document.getElementById("login"); // contenedor padre del login
+const feed = document.getElementById("feed");
+const botonIniciar = document.getElementById("iniciar");
+const logoutBtn = document.getElementById("logout");
+   const savedAudios = JSON.parse(localStorage.getItem('audioComments')) || [];
 
-  const users = [
-    { user: 'johan', contra: '12345', name: 'Johan', foto: 'assets/img/johan.jpg' },
-    { user: 'yisus', contra: '123', name: 'Yisus', foto: 'assets/img/yisus.jpg' },
-    { user: 'kevin', contra: '000', name: 'Kevin', foto: 'assets/img/kevin.jpg' },
-    { user: 'trofeo', contra: '321', name: 'Trofeo', foto: 'assets/img/trofeo.jpg' }
-  ];
-
-  
-  // Menú desplegable (clic para abrir)
-  const menuDropdown = document.querySelector(".menu-dropdown");
-  const dropdownContent = document.querySelector(".dropdown-content");
-  if (menuDropdown && dropdownContent) {
-    menuDropdown.addEventListener("click", (e) => {
-      e.stopPropagation();
-      menuDropdown.classList.toggle("active");
-    });
-    document.addEventListener("click", (e) => {
-      if (!menuDropdown.contains(e.target)) menuDropdown.classList.remove("active");
-    });
-  }
-  
-  // Logout
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem('usuarioActivo');
-
-       // 🔹 Eliminar cualquier vista previa de audio pendiente
-    removePendingPreview();
-    clearPendingAudio?.(); // si existe esta función, la llamamos también
-      // animación de salida del feed
-      if (feed) feed.classList.add('fadeout');
-      setTimeout(() => {
-        if (feed) {
-          feed.style.display = "none";
-          feed.classList.remove('fadeout');
-        }
-        // mostrar login con animación
-        if (login) {
-          login.style.display = "flex";
-          login.classList.add('fadein');
-          setTimeout(() => login.classList.remove('fadein'), 600);
-        }
-      }, 350);
-    });
-  }
-  // Login handlers
-  if (botonIniciar) botonIniciar.addEventListener("click", loginHandler);
-  document.addEventListener("keydown", (e) => { if (e.key === "Enter") loginHandler(); });
-  // Asegurarnos estado inicial
-  if (login) login.style.display = "none";
-  if (feed) feed.style.display = "none";
+  savedAudios.forEach(data => {
+    const node = addAudioCommentToDOM(data.url, data.user, data.foto);
+    const card = node.querySelector('.voice-card');
+    if (card) initVoiceCard(card);
+  });
 
 
-  // Mostrar login después del fade del splash
-  if (splash) {
-    setTimeout(() => {
-      splash.style.display = "none";
-      if (login) {
-        login.style.display = "flex";
-        // pequeño fadein opcional del login
-        login.classList.add('fadein');
-        setTimeout(() => login.classList.remove('fadein'), 600);
-      }
-    }, 5000);
-  } else {
-    // si no hay splash, mostrar login inmediatamente
-    if (login) login.style.display = "flex";
-  }
 
-  function removePendingPreview() {
+
+const users = [
+  { user: 'johan', contra: '12345', name: 'Johan', foto: 'assets/img/johan.jpg' },
+  { user: 'yisus', contra: '123', name: 'Yisus', foto: 'assets/img/yisus.jpg' },
+  { user: 'kevin', contra: '000', name: 'Kevin', foto: 'assets/img/kevin.jpg' },
+  { user: 'trofeo', contra: '321', name: 'Trofeo', foto: 'assets/img/trofeo.jpg' }
+];
+
+
+
+// -------------------- MENÚ DESPLEGABLE --------------------
+const menuDropdown = document.querySelector(".menu-dropdown");
+const dropdownContent = document.querySelector(".dropdown-content");
+if (menuDropdown && dropdownContent) {
+  menuDropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menuDropdown.classList.toggle("active");
+  });
+  document.addEventListener("click", (e) => {
+    if (!menuDropdown.contains(e.target)) menuDropdown.classList.remove("active");
+  });
+}
+
+// -------------------- FUNCIONES AUXILIARES --------------------
+function removePendingPreview() {
   const preview = document.querySelector(".pending-audio-preview");
   if (preview) preview.remove();
 }
 
 function clearPendingAudio() {
-  if (window.pendingAudioBlob) {
-    window.pendingAudioBlob = null;
+  if (window.pendingAudioBlob) window.pendingAudioBlob = null;
+}
+
+
+
+// -------------------- ESTADO INICIAL --------------------
+if (loginContainer) loginContainer.style.display = "none";
+if (feed) feed.style.display = "none";
+
+
+
+// Revisar si hay sesión guardada
+const usuarioGuardado = JSON.parse(localStorage.getItem('usuarioActivo'));
+if (usuarioGuardado) {
+  actualizarPerfil(usuarioGuardado);
+  showFeedInstant();
+  if (splash) splash.style.display = "none";
+} else {
+  // Mostrar login después del splash
+  if (splash) {
+    setTimeout(() => {
+      splash.style.display = "none";
+      if (loginContainer) {
+        loginContainer.style.display = "flex";
+        loginContainer.classList.add('fadein');
+        setTimeout(() => loginContainer.classList.remove('fadein'), 600);
+      }
+    }, 5000);
+  } else {
+    if (loginContainer) loginContainer.style.display = "flex";
   }
 }
 
 
-  function loginHandler() {
-    const usuario = document.getElementById('usuario').value.trim();
-    const clave = document.getElementById('clave').value.trim();
-    const usuarioValido = users.find(u => u.user === usuario && u.contra === clave);
 
-    if (usuarioValido) {
-      // Guardar usuario activo
-      localStorage.setItem('usuarioActivo', JSON.stringify(usuarioValido));
-      actualizarPerfil(usuarioValido);
+// -------------------- LOGIN --------------------
+if (botonIniciar) botonIniciar.addEventListener("click", loginHandler);
+document.addEventListener("keydown", (e) => { if (e.key === "Enter") loginHandler(); });
 
-      // animar salida del login y mostrar feed (orden: fadeout -> hide -> show feed -> fadein)
-      if (login) login.classList.add('fadeout');
-      setTimeout(() => {
-        if (login) {
-          login.style.display = "none";
-          login.classList.remove('fadeout'); // limpiar
-        }
-        showFeed();
-      }, 450);
-    } else {
-      alert("❌ Usuario o contraseña incorrectos");
-    }
+function loginHandler() {
+  const usuario = document.getElementById('usuario').value.trim();
+  const clave = document.getElementById('clave').value.trim();
+  const usuarioValido = users.find(u => u.user === usuario && u.contra === clave);
+
+  if (usuarioValido) {
+    localStorage.setItem('usuarioActivo', JSON.stringify(usuarioValido));
+    actualizarPerfil(usuarioValido);
+
+    if (loginContainer) loginContainer.classList.add('fadeout');
+    setTimeout(() => {
+      if (loginContainer) {
+        loginContainer.style.display = "none";
+        loginContainer.classList.remove('fadeout');
+      }
+      showFeed();
+    }, 450);
+  } else {
+    alert("❌ Usuario o contraseña incorrectos");
   }
+}
 
-  function showFeed() {
-    if (!feed) return;
-    feed.style.display = "block";
-    feed.classList.add('fadein');
-    setTimeout(() => feed.classList.remove('fadein'), 600);
-  }
+// -------------------- LOGOUT --------------------
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem('usuarioActivo');
+    removePendingPreview();
+    clearPendingAudio?.();
 
-  function showFeedInstant() { // para cuando ya hay sesión guardada
-    if (!feed) return;
-    feed.style.display = "block";
-  }
+    if (feed) feed.classList.add('fadeout');
+    setTimeout(() => {
+      if (feed) {
+        feed.style.display = "none";
+        feed.classList.remove('fadeout');
+      }
+      if (loginContainer) {
+        loginContainer.style.display = "flex";
+        loginContainer.classList.add('fadein');
+        setTimeout(() => loginContainer.classList.remove('fadein'), 600);
+      }
+    }, 350);
+  });
+}
 
-  function actualizarPerfil(usuario) {
-    // usa las propiedades que sí existen (name y foto)
-    const nombreUsuario = document.querySelector('.perfil-nombre');
-    const fotoUsuario = document.querySelector('.perfil-foto');
 
-    if (nombreUsuario) nombreUsuario.textContent = usuario.name || usuario.nombre || usuario.user;
-    if (fotoUsuario) fotoUsuario.src = usuario.foto || usuario.avatar || '/assets/img/johan.jpg';
-  }
+// -------------------- FEED --------------------
+function showFeed() {
+  if (!feed) return;
+  feed.style.display = "block";
+  feed.classList.add('fadein');
+  setTimeout(() => {
+    feed.classList.remove('fadein');
+    initLikes();
+  }, 600);
+}
 
-  // --- Función: inicializa sistema de likes para los posts actuales ---
+function showFeedInstant() {
+  if (!feed) return;
+  feed.style.display = "block";
+  requestAnimationFrame(() => initLikes());
+}
+
+// -------------------- PERFIL --------------------
+function actualizarPerfil(usuario) {
+  const nombreUsuario = document.querySelector('.perfil-nombre');
+  const fotoUsuario = document.querySelector('.perfil-foto');
+  if (nombreUsuario) nombreUsuario.textContent = usuario.name || usuario.user;
+  if (fotoUsuario) fotoUsuario.src = usuario.foto || 'assets/img/johan.jpg';
+}
+
+// -------------------- LIKES --------------------
 function initLikes() {
-  // Cargamos una vez los likes guardados
   const likesData = JSON.parse(localStorage.getItem("likesData")) || {};
-
   const posts = document.querySelectorAll(".post");
+
   posts.forEach((post, index) => {
     const likeBtn = post.querySelector(".action-btn.carita");
     if (!likeBtn) return;
 
     const postId = `post-${index}`;
-
-    // Asegurarnos de tener estructura para este post
     if (!likesData[postId]) likesData[postId] = { count: 0, users: [] };
 
     const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
-    // Si no hay usuario activo no permitimos acciones (puedes adaptar)
     if (!usuarioActivo) {
       updateLikeUI(likeBtn, likesData[postId].count, false);
       return;
     }
 
-    // Estado inicial (si el usuario ya dió like)
     const userLiked = likesData[postId].users.includes(usuarioActivo.user);
     updateLikeUI(likeBtn, likesData[postId].count, userLiked);
 
@@ -436,67 +453,37 @@ function initLikes() {
       const postLikes = likesData[postId];
 
       if (postLikes.users.includes(user)) {
-        // quitar like
         postLikes.users = postLikes.users.filter(u => u !== user);
         postLikes.count = Math.max(0, postLikes.count - 1);
       } else {
-        // dar like
         postLikes.users.push(user);
-        postLikes.count = postLikes.count + 1;
+        postLikes.count += 1;
       }
 
-      // Guardamos cambios en localStorage (actualizamos todo el objeto)
       localStorage.setItem("likesData", JSON.stringify(likesData));
-
-      // Actualizamos UI
       const likedNow = postLikes.users.includes(user);
       updateLikeUI(likeBtn, postLikes.count, likedNow);
     });
   });
 }
 
-// --- UI helper ---
 function updateLikeUI(button, count, liked) {
-  // Actualiza el innerHTML del botón con icono y número
   button.innerHTML = `<img src="assets/icons/${liked ? "hearth-fill.png" : "hearth.png"}" alt=""> ${count}`;
-
-  // Clase visual
   if (liked) button.classList.add("liked");
   else button.classList.remove("liked");
 }
 
-// --------------------- USO: llamar initLikes() cuando el feed esté visible ---------------------
-
-// En el flujo de login, reemplaza showFeed() / showFeedInstant() para llamar initLikes() después:
-function showFeed() {
-  if (!feed) return;
-  feed.style.display = "block";
-  feed.classList.add('fadein');
-  setTimeout(() => {
-    feed.classList.remove('fadein');
-
-    // Inicializamos likes ahora que el feed y los posts están en el DOM
-    initLikes();
-  }, 600);
-}
-
-function showFeedInstant() {
-  if (!feed) return;
-  feed.style.display = "block";
-
-  // inicializamos likes (con un micro delay por si hay render async)
-  // requestAnimationFrame garantiza que el DOM está pintado
-  requestAnimationFrame(() => initLikes());
-}
+// -------------------- LOGO MÓVIL --------------------
 if (window.innerWidth <= 768) {
-    const logoSection = document.querySelector(".sidebar .logo-section");
-    const BarTop=document.getElementById('bar-top')
-    if (logoSection) {
-      const clone = logoSection.cloneNode(true);
-      clone.classList.add("floating-logo");
-      BarTop.appendChild(clone);
-    }
+  const logoSection = document.querySelector(".sidebar .logo-section");
+  const BarTop = document.getElementById('bar-top');
+  if (logoSection && BarTop) {
+    const clone = logoSection.cloneNode(true);
+    clone.classList.add("floating-logo");
+    BarTop.appendChild(clone);
   }
+}
+
 
 });
 
@@ -555,7 +542,7 @@ function showPendingAudioPreview(url) {
   const preview = document.createElement("div");
   preview.className = "pending-audio-preview";
   preview.innerHTML = `
-    <div class="voice-card" style="width:160px; height:60px; margin-right:8px; margin-top:5px; position:relative; overflow:hidden;">
+    <div class="voice-card shake-horizontal" style="width:160px; height:60px; margin-right:8px; margin-top:5px; position:relative; overflow:hidden;">
       <div class="voice-bg" 
            style="
              background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('${usuarioActivo.foto}');
@@ -569,8 +556,8 @@ function showPendingAudioPreview(url) {
            "></div>
 
       <div style="position:relative; z-index:2; display:flex; align-items:center; height:100%; padding-left:6px; width:100%;">
-        <button class="voice-play" id="boton" style="width:50px; height:30px; margin-left:9px;"></button>
-        <div class="voice-bar" id="bar1" aria-hidden="true" style="height:4px; margin-left:10px; margin-right:10px; width:100%;"></div>
+        <button class="voice-play"  style="width:50px; height:30px; margin-left:9px;"></button>
+        <div class="voice-bar"  aria-hidden="true" style="height:4px; margin-left:10px; margin-right:10px; width:100%;"></div>
         <audio src="${url}"></audio>
       </div>
     </div>
@@ -667,24 +654,46 @@ function sendTextComment(text) {
 
 // Para audio:
 function sendAudioComment(blob) {
-  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || {
+ 
+   const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || {
     user: 'Tú',
     foto: 'assets/img/johan.jpg'
   };
 
-  const url = URL.createObjectURL(blob);
+  const reader = new FileReader();
+reader.onloadend = () => {
 
+  const base64Audio = reader.result; // <- AUDIO PERMANENTE
+
+  addAudioCommentToDOM(base64Audio, usuarioActivo.user, usuarioActivo.foto);
+
+  const savedAudios = JSON.parse(localStorage.getItem('audioComments')) || [];
+  savedAudios.push({
+    url: base64Audio,
+    user: usuarioActivo.user,
+    foto: usuarioActivo.foto
+  });
+
+  localStorage.setItem('audioComments', JSON.stringify(savedAudios));
+};
+
+reader.readAsDataURL(blob);
+
+}
+
+function addAudioCommentToDOM(url,user,foto){
+  
   const node = document.createElement('div');
   node.className = 'user-info margen';
   node.innerHTML = `
-    <img src="${usuarioActivo.foto}" class="user-avatar">
+    <img src="${foto}" class="user-avatar">
     <div class="comment-text">
-      <strong>${usuarioActivo.user}</strong>
+      <strong>${user}</strong>
       <div style="margin-top:6px;">
-        <div class="voice-card" style="width:160px; height:60px; position:relative; overflow:hidden; border-radius:12px;">
+        <div class="voice-card shake-vertical" style="width:160px; height:60px; position:relative; overflow:hidden; border-radius:12px;">
           <div class="voice-bg"
             style="
-              background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('${usuarioActivo.foto}');
+              background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('${foto}');
               background-size: cover;
               background-position: center;
               filter: blur(2px) brightness(0.8);
@@ -710,82 +719,51 @@ function sendAudioComment(blob) {
   `;
 
   commentList.appendChild(node);
+
+  
+
+
+  // 🔸 Iniciar la funcionalidad del nuevo audio
+  const newCard = node.querySelector('.voice-card');
+  initVoiceCard(newCard);
+  
   // Eliminar comentario
-const deleteBtn = node.querySelector('.voice-delete, .delete-comment');
+  
+   // Eliminar comentario
+const deleteBtn = node.querySelector('.voice-delete');
 if (deleteBtn) {
   deleteBtn.addEventListener('click', () => {
+
+    // 1. Eliminar del DOM
     node.remove();
 
-    // Actualizar contador del botón
+    // 2. Eliminar del localStorage
+    let savedAudios = JSON.parse(localStorage.getItem('audioComments')) || [];
+    savedAudios = savedAudios.filter(a => a.url !== url);
+    localStorage.setItem('audioComments', JSON.stringify(savedAudios));
+
+    // 3. Actualizar contador del botón
     const toggleBtn = document.querySelector('.toggle-comments');
     if (toggleBtn) {
       toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
     }
+
   });
 }
+ 
+  
 
   commentList.style.display = 'flex';
 
-  // 🔹 Actualizar texto del botón "Ver comentarios"
   const toggleBtn = document.querySelector('.toggle-comments');
   if (toggleBtn) {
     toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
   }
 
-  // 🔸 Iniciar la funcionalidad del nuevo audio
-  const newCard = node.querySelector('.voice-card');
-  initVoiceCard(newCard);
+  return node;
+
 }
 
-// --- FUNCIÓN DE REPRODUCCIÓN DE AUDIO ---
-function initVoiceCard(card) {
-  const playBtn = card.querySelector('.voice-play');
-  const audio = card.querySelector('audio');
-  const bar = card.querySelector('.voice-progress');
-
-  let isPlaying = false;
-
-  // Estilos base
-  playBtn.innerHTML = '▶️';
-  playBtn.style.cursor = 'pointer';
-  playBtn.style.border = 'none';
-  playBtn.style.background = 'transparent';
-  playBtn.style.fontSize = '18px';
-  playBtn.style.color = '#fff';
-
-  playBtn.addEventListener('click', () => {
-    // Si hay otro audio sonando, pausarlo
-    document.querySelectorAll('audio').forEach(a => {
-      if (a !== audio) {
-        a.pause();
-        a.parentElement.querySelector('.voice-play').innerHTML = '▶️';
-      }
-    });
-
-    if (!isPlaying) {
-      audio.play();
-      playBtn.innerHTML = '⏸️';
-      isPlaying = true;
-    } else {
-      audio.pause();
-      playBtn.innerHTML = '▶️';
-      isPlaying = false;
-    }
-  });
-
-  // Actualizar barra de progreso
-  audio.addEventListener('timeupdate', () => {
-    const percent = (audio.currentTime / audio.duration) * 100;
-    bar.style.width = percent + '%';
-  });
-
-  // Cuando termina el audio
-  audio.addEventListener('ended', () => {
-    isPlaying = false;
-    playBtn.innerHTML = '▶️';
-    bar.style.width = '0%';
-  });
-}
 // Inicializa un reproductor de audio (voice-card individual)
 function initVoiceCard(card) {
   const btn = card.querySelector('.voice-play');
