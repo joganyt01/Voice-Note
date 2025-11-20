@@ -1241,6 +1241,20 @@ code {
   background: #ff4b4b;
 }
 
+/*  Efecto visual cuando se está grabando: brillante + agrandado */
+.recording-active {
+  transform: scale(1.12) !important;
+  opacity: 1 !important;
+  box-shadow:
+    0 0 14px var(--violet),
+    0 0 26px var(--cyan),
+    0 0 40px rgba(0, 150, 255, 0.7) !important;
+  transition:
+    transform 0.2s ease,
+    opacity 0.3s,
+    box-shadow 0.3s ease;
+}
+
 /* === 📱 Modo responsive (móviles) === */
 @media (max-width: 768px) {
   .nav-bar {
