@@ -641,11 +641,11 @@ sendButton.addEventListener('click', (e) => {
 
 // Funciones para insertar comentario en la lista (ajusta según tu estructura)
 function sendTextComment(text) {
-  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { user: 'Tú', avatar: 'assets/img/johan.jpg' };
+  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { user: 'Tú', foto: 'assets/img/johan.jpg' };
   const node = document.createElement('div');
   node.className = 'user-info margen';
   node.innerHTML = `
-    <img src="${usuarioActivo.avatar || 'assets/img/johan.jpg'}" class="user-avatar">
+    <img src="${usuarioActivo.foto || 'assets/img/johan.jpg'}" class="user-avatar">
     <div class="comment-text"><strong>${usuarioActivo.user}</strong> ${escapeHtml(text)}</div>
   `;
   commentList.appendChild(node);
