@@ -1200,8 +1200,46 @@ code {
   90% {
     transform: translateY(-6.4px)
   }
+}.delete-btn {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  cursor: pointer;
+  opacity: 0;
+  transition: 0.2s ease;
+  pointer-events: none;
 }
 
+.delete-btn::before,
+.delete-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  background: #b5b5b5;
+  border-radius: 4px;
+  transform-origin: center;
+}
+
+.delete-btn::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.delete-btn::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.user-info:hover .delete-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.delete-btn:hover::before,
+.delete-btn:hover::after {
+  background: #ff4b4b;
+}
 
 /* === 📱 Modo responsive (móviles) === */
 @media (max-width: 768px) {
@@ -1291,4 +1329,17 @@ code {
     right: -120px;
 
   }
+
+  
+/* Efecto brillante en móvil y también cuando presionas en desktop */
+.mic-button:active,
+.mic-button:focus {
+  transform: scale(1.12);
+  opacity: 1;
+  box-shadow: 
+    0 0 14px var(--violet), 
+    0 0 26px var(--cyan), 
+    0 0 40px rgba(0, 150, 255, 0.7);
+}
+
 }

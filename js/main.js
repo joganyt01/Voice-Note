@@ -1,7 +1,16 @@
+import { db } from "./firebase-init.js";
+import { collection, addDoc, getDocs, deleteDoc, doc }
+from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+const notasRef = collection(db, "comments", "test", "comentarios");
+
+
+
 const card = document.querySelector('.voice-card');
 const bar1 = document.getElementById('bar1');
 const btn = document.getElementById('boton'); // botón play
 const music = document.getElementById("music");
+
 
 let isPlaying = false;
 let wasPaused = false;
@@ -231,62 +240,38 @@ likeBtn.forEach((btn) => {
   });
 });
 
-// Seleccionamos todas las secciones de comentarios (una por post)
-const commentSections = document.querySelectorAll('.comments-section');
-
-commentSections.forEach((section) => {
-  const toggleBtn = section.querySelector('.toggle-comments');
-  const commentList = section.querySelector('.comments-list');
-  const input = section.querySelector('.comment-input input');
-  const sendBtn = section.querySelector('.send-comment');
-
-  // Mostrar / ocultar los comentarios
-  toggleBtn.addEventListener('click', () => {
-    const isVisible = commentList.style.display === 'flex';
-    commentList.style.display = isVisible ? 'none' : 'flex';
-    toggleBtn.textContent = isVisible
-      ? `Ver comentarios (${commentList.children.length})`
-      : `Ocultar comentarios (${commentList.children.length})`;
-  });
-
-  // Enviar nuevo comentario
-  sendBtn.addEventListener('click', () => {
-    const text = input.value.trim();
-    if (text !== '') {
-      const newComment = document.createElement('div');
-      newComment.classList.add('user-info');
-      newComment.innerHTML = `<img src="assets/img/Johan.jpg" alt="user" class="user-avatar" style="margin-right: 0px;">
-     <div class="comment-text"><strong>Tu:</strong></div> ${text}`;
-      commentList.appendChild(newComment);
-
-      input.value = '';
-      toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
-      commentList.style.display = 'flex'; // se mantiene abierto
-    }
-  });
-
-  // Permitir presionar Enter para enviar
-  input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      sendBtn.click();
-    }
-  });
-});
 document.addEventListener("DOMContentLoaded", () => {
   const splash = document.querySelector(".splash-screen");
 const loginContainer = document.getElementById("login"); // contenedor padre del login
 const feed = document.getElementById("feed");
 const botonIniciar = document.getElementById("iniciar");
 const logoutBtn = document.getElementById("logout");
-   const savedAudios = JSON.parse(localStorage.getItem('audioComments')) || [];
-
-  savedAudios.forEach(data => {
-    const node = addAudioCommentToDOM(data.url, data.user, data.foto);
-    const card = node.querySelector('.voice-card');
-    if (card) initVoiceCard(card);
-  });
+const sendButton = document.querySelector(".send-comment");
+const commentInputField = document.getElementById("commentText"); // id según HTML
 
 
+  sendButton.addEventListener("click", () => {
+  const texto = commentInputField.value.trim();
+  if (!texto) return;
+
+  sendTextComment(texto);
+
+});
+
+document.addEventListener("keydown",(e)=>{
+  if(e.key=="Enter"){
+     e.preventDefault(); 
+
+    const texto = commentInputField.value.trim();
+    if (!texto) return;
+
+    sendTextComment(texto);
+
+    commentInputField.value = ""; // ← limpiar input
+  }
+})
+
+  loadCommentsFromFirestoreAndRender();
 
 
 const users = [
@@ -639,52 +624,165 @@ sendButton.addEventListener('click', (e) => {
   }
 });
 
-// Funciones para insertar comentario en la lista (ajusta según tu estructura)
-function sendTextComment(text) {
-  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { user: 'Tú', avatar: 'assets/img/johan.jpg' };
+// Mostrar un comentario de texto en DOM (NO lo vuelve a guardar en Firestore)
+function addTextCommentToDOM(texto, user = 'Tú', foto = 'assets/img/johan.jpg',id = null) {
+  
+  if (!commentList) {
+    console.error("ERROR: No se pasó el commentList correcto a addTextCommentToDOM");
+    return;
+  }
+
   const node = document.createElement('div');
-  node.className = 'user-info margen';
+  node.classList.add('user-info', 'margen');
+
+  if (id) node.dataset.id = id;
+
   node.innerHTML = `
-    <img src="${usuarioActivo.avatar || 'assets/img/johan.jpg'}" class="user-avatar">
-    <div class="comment-text"><strong>${usuarioActivo.user}</strong> ${escapeHtml(text)}</div>
+    <img src="${foto}" class="user-avatar">
+    <div class="comment-text"><strong>${user}</strong> ${texto}</div>
+    <div class="comment-options delete-btn"></div>
   `;
+
+  // Evento para eliminar
+  node.querySelector(".comment-options").addEventListener("click", async () => {
+
+    if (node.dataset.id) {
+      await deleteDoc(doc(db, "comments", "test", "comentarios", node.dataset.id));
+    }
+
+    node.remove();
+
+    // 🔥 ACTUALIZAR CONTADOR DESPUÉS DE ELIMINAR
+    const section = commentList.closest('.comments-section');
+    const toggleBtn = section ? section.querySelector('.toggle-comments') : null;
+
+    if (toggleBtn) {
+      toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
+    }
+  });
+
+  // Agregar a la lista correcta
   commentList.appendChild(node);
-  // si quieres persistir en localStorage, llama a tu función addComentario(...)
+
+  // Actualizar botón de la sección correcta al agregar
+  const section = commentList.closest('.comments-section');
+  const toggleBtn = section ? section.querySelector('.toggle-comments') : null;
+
+  if (toggleBtn) {
+    toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
+    commentList.style.display = 'flex';
+  }
+
+  return node;
+}
+// Cargar todos los comentarios guardados en Firestore (textos y audios)
+async function loadCommentsFromFirestoreAndRender() {
+  const comments = await cargarNotas();
+  console.log("Comentarios desde Firestore:", comments);
+
+  const contenedor = document.querySelector(".comments-list");
+  contenedor.innerHTML = ""; // limpiar lista
+
+ comments.forEach(comment => {
+  if (comment.tipo && comment.tipo.toLowerCase() === "audio") {
+    addAudioCommentToDOM(
+      comment.contenido,
+      comment.user || "Anónimo",
+      comment.foto || "assets/img/johan.jpg",
+      comment.id // <--- AGREGAR ESTO
+    );
+  } else {
+    addTextCommentToDOM(
+      comment.contenido,
+      comment.user || "Anónimo",
+      comment.foto || "assets/img/johan.jpg",
+      comment.id // <--- AGREGAR ESTO
+    );
+  }
+});
+
 }
 
-// Para audio:
-function sendAudioComment(blob) {
- 
-   const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || {
-    user: 'Tú',
+
+// Funciones para insertar comentario en la lista (ajusta según tu estructura)
+async function sendTextComment(texto) {
+
+  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || { 
+    user: 'Tú', 
     foto: 'assets/img/johan.jpg'
   };
 
-  const reader = new FileReader();
-reader.onloadend = () => {
+  try {
+    // PRIMERO guardar en Firestore
+    const docRef = await addDoc(notasRef, {
+      tipo: "texto",
+      contenido: texto,
+      user: usuarioActivo.user,
+      foto: usuarioActivo.foto,
+      fecha: new Date().toISOString()
+    });
 
-  const base64Audio = reader.result; // <- AUDIO PERMANENTE
+    console.log("Comentario guardado con ID:", docRef.id);
 
-  addAudioCommentToDOM(base64Audio, usuarioActivo.user, usuarioActivo.foto);
+    // DESPUÉS sí ponerlo en pantalla con su ID
+    addTextCommentToDOM(texto, usuarioActivo.user, usuarioActivo.foto, docRef.id);
 
-  const savedAudios = JSON.parse(localStorage.getItem('audioComments')) || [];
-  savedAudios.push({
-    url: base64Audio,
-    user: usuarioActivo.user,
-    foto: usuarioActivo.foto
-  });
+    return docRef.id;
 
-  localStorage.setItem('audioComments', JSON.stringify(savedAudios));
-};
-
-reader.readAsDataURL(blob);
-
+  } catch (err) {
+    console.error("Error guardando comentario:", err);
+  }
 }
 
-function addAudioCommentToDOM(url,user,foto){
+
+
+
+// Para audio:
+async function sendAudioComment(blob) {
+  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo')) || {
+    user: "Tú",
+    foto: "assets/img/johan.jpg"
+  };
+
+  const reader = new FileReader();
+
+  reader.onloadend = async () => {
+    const base64Audio = reader.result;
+
+    // 1. Guardar primero en Firestore
+    try {
+      const docRef = await addDoc(notasRef, {
+        tipo: "audio",
+        contenido: base64Audio,
+        user: usuarioActivo.user,
+        foto: usuarioActivo.foto,
+        fecha: new Date().toISOString()
+      });
+
+      console.log("Audio guardado en Firestore:", docRef.id);
+
+      // 2. Mostrar en DOM con ID
+      addAudioCommentToDOM(
+        base64Audio,
+        usuarioActivo.user,
+        usuarioActivo.foto,
+        docRef.id
+      );
+
+    } catch (err) {
+      console.error("Error guardando audio:", err);
+    }
+  };
+
+  reader.readAsDataURL(blob);
+}
+
+
+function addAudioCommentToDOM(url, user, foto, id = null){
   
   const node = document.createElement('div');
   node.className = 'user-info margen';
+  if (id) node.dataset.id = id;
   node.innerHTML = `
     <img src="${foto}" class="user-avatar">
     <div class="comment-text">
@@ -730,26 +828,26 @@ function addAudioCommentToDOM(url,user,foto){
   // Eliminar comentario
   
    // Eliminar comentario
+// Eliminar comentario (DOM + Firestore)
 const deleteBtn = node.querySelector('.voice-delete');
-if (deleteBtn) {
-  deleteBtn.addEventListener('click', () => {
 
-    // 1. Eliminar del DOM
-    node.remove();
+deleteBtn.addEventListener('click', async () => {
 
-    // 2. Eliminar del localStorage
-    let savedAudios = JSON.parse(localStorage.getItem('audioComments')) || [];
-    savedAudios = savedAudios.filter(a => a.url !== url);
-    localStorage.setItem('audioComments', JSON.stringify(savedAudios));
+  // 1. Eliminar de Firestore si tiene ID
+  if (node.dataset.id) {
+    await deleteDoc(doc(db, "comments", "test", "comentarios", node.dataset.id));
+  }
 
-    // 3. Actualizar contador del botón
-    const toggleBtn = document.querySelector('.toggle-comments');
-    if (toggleBtn) {
-      toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
-    }
+  // 2. Eliminar del DOM
+  node.remove();
 
-  });
-}
+  // 3. Actualizar contador
+  const toggleBtn = document.querySelector('.toggle-comments');
+  if (toggleBtn) {
+    toggleBtn.textContent = `Ocultar comentarios (${commentList.children.length})`;
+  }
+});
+
  
   
 
@@ -843,4 +941,57 @@ function escapeHtml(text) {
 
 // inicializar al cargar
 initMic();
+
+
+async function guardarNota(texto) {
+  try {
+    await addDoc(notasRef, {
+      contenido: texto,
+      fecha: new Date().toISOString()
+    });
+
+    console.log("Nota guardada correctamente");
+  } catch (error) {
+    console.error("Error al guardar la nota:", error);
+  }
+}
+
+
+
+
+
+async function cargarNotas() {
+  const snapshot = await getDocs(notasRef);
+  const lista = [];
+
+  snapshot.forEach(doc => {
+    lista.push({ id: doc.id, ...doc.data() });
+  });
+
+ 
+  return lista;
+}
+
+// Evento global para botones "Mostrar/Ocultar comentarios"
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('toggle-comments')) {
+
+    const section = e.target.closest('.comments-section');
+    if (!section) return;
+
+    const commentList = section.querySelector('#commentList, .comment-list, .comments-list');
+    if (!commentList) return;
+
+    // Comportamiento de abrir/cerrar
+    const isHidden = commentList.style.display === 'none';
+
+    commentList.style.display = isHidden ? 'flex' : 'none';
+    const cuenta = commentList.children.length;
+
+    e.target.textContent = isHidden
+      ? `Ocultar comentarios (${cuenta})`
+      : `Ver comentarios (${cuenta})`;
+  }
+});
+
 
