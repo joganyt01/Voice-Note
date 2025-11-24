@@ -999,6 +999,12 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Vibración real
+function vibrarWhatsApp() {
+  if (navigator.vibrate) {
+    navigator.vibrate(50); // vibración cortica como WhatsApp
+  }
+}
 
 // --- Eventos táctiles (móvil) ---
 // Efecto WhatsApp en botón de grabación
@@ -1016,6 +1022,7 @@ micButton.addEventListener("mouseleave", () => {
 
 // Versión móvil
 micButton.addEventListener("touchstart", () => {
+  vibrarWhatsApp();
   micButton.classList.add("recording-active");
 });
 
