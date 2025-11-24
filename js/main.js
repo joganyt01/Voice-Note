@@ -279,10 +279,10 @@ const users = [
   { user: 'yisus', contra: '123', name: 'Yisus', foto: 'assets/img/yisus.jpg' },
   { user: 'kevin', contra: '000', name: 'Kevin', foto: 'assets/img/kevin.jpg' },
   { user: 'trofeo', contra: '321', name: 'Trofeo', foto: 'assets/img/trofeo.jpg'},
-   { user: 'invitado', contra: '0110', name: 'Invitado 1', foto: 'assets/img/invitado.png'},
-    { user: 'invitado1', contra: '1001', name: 'Invitado 2', foto: 'assets/img/invitado.png'},
-      {user: 'invitado2', contra: '412', name: 'Invitado 3', foto: 'assets/img/invitado.png'},
-       {user: 'invitado3', contra: '312', name: 'Invitado 4', foto: 'assets/img/invitado.png'}
+   { user: 'Invitado', contra: '0110', name: 'Invitado 1', foto: 'assets/img/invitado.png'},
+    { user: 'Invitado1', contra: '1001', name: 'Invitado 2', foto: 'assets/img/invitado.png'},
+      {user: 'Invitado2', contra: '412', name: 'Invitado 3', foto: 'assets/img/invitado.png'},
+       {user: 'Invitado3', contra: '312', name: 'Invitado 4', foto: 'assets/img/invitado.png'}
    
 ];
 
