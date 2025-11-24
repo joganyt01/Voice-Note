@@ -1001,35 +1001,24 @@ document.addEventListener('click', (e) => {
 
 
 // --- Eventos táctiles (móvil) ---
-micButton.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  micButton.classList.add('recording-active');
-  startRecording();
+// Efecto WhatsApp en botón de grabación
+micButton.addEventListener("mousedown", () => {
+  micButton.classList.add("recording-active");
 });
 
-micButton.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  micButton.classList.remove('recording-active');
-  stopRecording();
+micButton.addEventListener("mouseup", () => {
+  micButton.classList.remove("recording-active");
 });
 
-// --- Eventos de escritorio ---
-micButton.addEventListener('mousedown', () => {
-  micButton.classList.add('recording-active');
-  startRecording();
+micButton.addEventListener("mouseleave", () => {
+  micButton.classList.remove("recording-active");
 });
 
-micButton.addEventListener('mouseup', () => {
-  micButton.classList.remove('recording-active');
-  stopRecording();
+// Versión móvil
+micButton.addEventListener("touchstart", () => {
+  micButton.classList.add("recording-active");
 });
 
-// --- Extra: por si se sale del botón sin soltar ---
-micButton.addEventListener('mouseleave', () => {
-  micButton.classList.remove('recording-active');
+micButton.addEventListener("touchend", () => {
+  micButton.classList.remove("recording-active");
 });
-
-
-
-
-
