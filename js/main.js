@@ -588,6 +588,8 @@ function startRecording() {
   mediaRecorder.start();
   isRecording = true;
   micButton.classList.add('recording'); // para animación visual
+   const microfone= new Audio("assets/audios/microfono.mp3");
+  microfone.play();
 }
 function stopRecording() {
   if (!mediaRecorder || !isRecording) return;
