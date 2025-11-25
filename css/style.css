@@ -1361,7 +1361,7 @@ code {
 /* Efecto brillante en móvil y también cuando presionas en desktop */
 .mic-button:active,
 .mic-button:focus {
-  transform: scale(2.16);
+  transform: scale(2.50);
   opacity: 1;
   box-shadow: 
     0 0 14px var(--violet), 
