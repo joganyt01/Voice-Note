@@ -1004,7 +1004,7 @@ document.addEventListener('click', (e) => {
 // Vibración real
 function vibrarWhatsApp() {
   if (navigator.vibrate) {
-    navigator.vibrate(50); // vibración cortica como WhatsApp
+    navigator.vibrate(60); // vibración cortica como WhatsApp
   }
 }
 
