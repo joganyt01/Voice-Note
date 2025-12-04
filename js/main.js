@@ -545,12 +545,13 @@ function showPendingAudioPreview(url) {
              inset: 0;
              z-index: 0;
              border-radius: 12px;
+             pointer-events:none;
            "></div>
 
       <div style="position:relative; z-index:2; display:flex; align-items:center; height:100%; padding-left:6px; width:100%;">
         <button class="voice-play"  style="width:50px; height:30px; margin-left:9px;"></button>
         <div class="voice-bar"  aria-hidden="true" style="height:4px; margin-left:10px; margin-right:10px; width:100%;"></div>
-        <audio src="${url}"></audio>
+        <audio src="${url}"  playsinline></audio>
       </div>
     </div>
     <button type="button" class="cancel-audio" title="Eliminar grabación">✕</button>
@@ -808,6 +809,7 @@ function addAudioCommentToDOM(url, user, foto, id = null){
               inset: 0;
               z-index: 0;
               border-radius: 12px;
+              pointer-events:none;
             ">
           </div>
 
@@ -816,7 +818,7 @@ function addAudioCommentToDOM(url, user, foto, id = null){
             <div class="voice-bar" id="bar1" aria-hidden="true" style="height:4px; margin-left:10px; margin-right:10px; width:100%; background:#555; border-radius:2px; overflow:hidden;">
               <div class="voice-progress" style="height:100%; width:0%; background:#00d9ff;"></div>
             </div>
-            <audio src="${url}"></audio>
+            <audio src="${url}" playsinline></audio>
           </div>
           <button class="voice-delete" title="Eliminar comentario">✕</button>
 
@@ -895,7 +897,7 @@ function initVoiceCard(card) {
     btn.classList.add('paused');
     if (wasPaused) {
       bar.style.transition = 'width 0.4s cubic-bezier(.68,-0.55,.27,1.55)';
-      bar.style.setProperty("--progress", `${lastProgress}%`);
+      bar.querySelector(".voice-progress").style.width = `${progress}%`;
       wasPaused = false;
     }
   });
@@ -905,7 +907,7 @@ function initVoiceCard(card) {
     lastProgress = (music.currentTime / music.duration) * 100 || 0;
     wasPaused = true;
     bar.style.transition = 'width 0.35s ease-in';
-    bar.style.setProperty("--progress", `0%`);
+   bar.querySelector(".voice-progress").style.width = `${progress}%`;
     bar.classList.remove('active');
     card.classList.remove('active');
     btn.classList.remove('paused');
@@ -927,17 +929,18 @@ function initVoiceCard(card) {
     }
   });
 
+  
   // Permitir saltar tocando la barra
-  bar.addEventListener("click", (e) => {
+ ["click", "touchstart", "pointerdown"].forEach(ev => {
+  bar.addEventListener(ev, (e) => {
     const rect = bar.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const width = rect.width;
-    const percentage = (clickX / width) * 100;
-    if (music.duration) {
-      music.currentTime = (percentage / 100) * music.duration;
-      bar.style.setProperty("--progress", `${percentage}%`);
-    }
-  });
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const p = (x / rect.width) * 100;
+    music.currentTime = (p / 100) * music.duration;
+    bar.querySelector(".voice-progress").style.width = `${p}%`;
+  }, { passive: true });
+});
+  
 }
 
 
@@ -1025,10 +1028,12 @@ micButton.addEventListener("mouseleave", () => {
 });
 
 // Versión móvil
-micButton.addEventListener("touchstart", () => {
+micButton.addEventListener("touchstart", (e) => {
+  e.preventDefault(); // necesario en iOS
   vibrarWhatsApp();
   micButton.classList.add("recording-active");
-});
+}, { passive: false });
+
 
 micButton.addEventListener("touchend", () => {
   micButton.classList.remove("recording-active");
