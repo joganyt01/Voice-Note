@@ -1278,7 +1278,7 @@ code {
     left: 48%;
     transform: translateX(-50%);
     border-radius: 25px;
-    width: fit-content;
+    width: 80%;
     padding: 12px 18px;
     box-shadow: 0 -5px 20px rgba(145, 90, 255, 0.3);
   }
