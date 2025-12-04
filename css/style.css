@@ -1337,11 +1337,9 @@ code {
     margin: 0;
 
   }
-
   .right-section {
     display: flex;
-    justify-content: flex-end;
-
+    justify-content: center;
   }
 
   .top-bar {
