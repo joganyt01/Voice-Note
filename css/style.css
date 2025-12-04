@@ -1268,6 +1268,7 @@ code {
     box-shadow 0.3s ease;
 }
 
+
 /* === 📱 Modo responsive (móviles) === */
 @media (max-width: 768px) {
   .nav-bar {
@@ -1339,7 +1340,7 @@ code {
 
   .right-section {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
 
   }
 
@@ -1349,23 +1350,39 @@ code {
 
   .post {
     margin-top: 10%;
+    width: 100%;
   }
-
-  .dropdown-content {
-
-    right: -120px;
-
-  }
-
-  
-/* Efecto brillante en móvil y también cuando presionas en desktop */
-.mic-button:active,
-.mic-button:focus {
-  transform: scale(3.16);
-  opacity: 1;
-  box-shadow: 
-    0 0 14px var(--violet), 
-    0 0 26px var(--cyan), 
-    0 0 40px rgba(0, 150, 255, 0.7);
+.video-player{
+  width: 100%;
 }
-    }
+  .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%; /* Justo debajo del botón */
+  left: 0;   /* Alineado al borde izquierdo del botón */
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  display: none;
+  z-index: 9999; /* Para que no se quede tapado */
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+  /* Efecto brillante en móvil y también cuando presionas en desktop */
+  .mic-button:active,
+  .mic-button:focus {
+    transform: scale(3.16);
+    opacity: 1;
+    box-shadow:
+      0 0 14px var(--violet),
+      0 0 26px var(--cyan),
+      0 0 40px rgba(0, 150, 255, 0.7);
+  }
+}
