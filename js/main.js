@@ -285,7 +285,9 @@ const users = [
        {user: 'Invitado3', contra: '312', name: 'Invitado 4', foto: 'assets/img/invitado.png'},
          {user: 'yeison', contra: '888', name: 'Yeison', foto: 'assets/img/yeison.jpg'},
            {user: 'edwin', contra: '666', name: 'Edwin', foto: 'assets/img/edwin.jpg'},
-            {user: 'angel', contra: '555', name: 'Angel', foto: 'assets/img/angel.jpg'}
+            {user: 'angel', contra: '555', name: 'Angel', foto: 'assets/img/angel.jpg'},
+  {user: 'sebastian', contra: '222', name: 'Sebastian', foto: 'assets/img/sebastian.jpg'},
+               {user: 'estiven', contra: '333', name: 'estiven', foto: 'assets/img/estiven.jpg'}
 ];
 
 
