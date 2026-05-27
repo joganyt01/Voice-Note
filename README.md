@@ -19,7 +19,7 @@ El proyecto busca simular una aplicación real de productividad con una interfaz
     <td align="center"><b>Mobil</b></td>
   </tr>
   <tr>
-    <td><img src="Desktop.png" alt="Pantalla principal" width="400"></td>
+    <td><img src="Desktop.PNG" alt="Pantalla principal" width="400"></td>
     <td><img src="Mobil.jpeg" alt="Grabación" width="400"></td>
   </tr>
 </table>
